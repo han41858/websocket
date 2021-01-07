@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"scripts": {
 		"prestart": "rimraf ./build",
-		"start": "tsc&&node ./build/index"
+		"start": "tsc&&node ./build/server/src/index"
 	},
 	"devDependencies": {
 		"@types/ws": "^7.4.0",

@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
+import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { webSocket } from 'rxjs/webSocket';
+import { WebSocketSubject } from 'rxjs/webSocket';
+
+import { WebsocketService } from 'src/app/services';
+import { Message } from '../../../common/interfaces';
 
 
 @Component({
@@ -9,34 +13,32 @@ import { webSocket } from 'rxjs/webSocket';
 	templateUrl : './app.component.html',
 	styleUrls : ['./app.component.styl']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
 
-	constructor () {
-	}
-
-	ngOnInit () : void {
-
+	constructor (private wsSvc : WebsocketService) {
 	}
 
 	send1Message () : void {
-		console.log('sendMessage()');
+		console.log('send1Message()');
 
-		const subject = webSocket('ws://localhost:3001');
+		const ws$ : WebSocketSubject<Message> = this.wsSvc.open<Message>('ws://localhost:3001');
 
-		subject.pipe(
+		const sub : Subscription = ws$.pipe(
 			tap((msg) => {
-				console.log('on message :', msg);
+				console.log('tap()', msg);
 			})
-		);
+		)
+		.subscribe();
 
-		subject.subscribe();
-
-
-		subject.next({
-			msg : 'hello'
+		ws$.next({
+			message : new Date().toISOString()
 		});
 
-		subject.complete();
+		setTimeout(() => {
+			console.log('close');
+
+			ws$.complete();
+		}, 50);
 	}
 
 }
