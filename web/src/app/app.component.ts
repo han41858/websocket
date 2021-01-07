@@ -18,8 +18,8 @@ export class AppComponent {
 	constructor (private wsSvc : WebsocketService) {
 	}
 
-	send1Message () : void {
-		console.log('send1Message()');
+	sendMessage (repeat : number = 1) : void {
+		console.log('sendMessage()');
 
 		const ws$ : WebSocketSubject<Message> = this.wsSvc.open<Message>('ws://localhost:3001');
 
@@ -30,9 +30,13 @@ export class AppComponent {
 		)
 		.subscribe();
 
-		ws$.next({
-			message : new Date().toISOString()
-		});
+
+		for (let i = 0; i < repeat; i++) {
+			ws$.next({
+				message : new Date().toISOString()
+			});
+		}
+
 
 		setTimeout(() => {
 			console.log('close');
