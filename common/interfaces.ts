@@ -1,3 +1,6 @@
 export interface Message {
-	message : string
+	mode : 'echo' | 'receive';
+	end? : boolean;
+
+	message : string;
 }

@@ -35,9 +35,24 @@ wss.on('connection', (ws : WebSocket) => {
 			typeOfData : typeof data
 		});
 
-		send({
-			message : new Date().toISOString()
-		});
+		switch (data.mode) {
+			case 'echo':
+				send({
+					mode : data.mode,
+					message : new Date().toISOString()
+				});
+				break;
+
+			case 'receive':
+				setTimeout(() => {
+					send({
+						mode : data.mode,
+						message : new Date().toISOString(),
+						end : true
+					});
+				}, 1000);
+				break;
+		}
 	};
 
 	ws.onclose = (event : WebSocket.CloseEvent) : void => {

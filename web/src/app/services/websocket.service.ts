@@ -8,9 +8,12 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 })
 export class WebsocketService {
 
+	// url: without protocol
 	open<T> (url : string) : WebSocketSubject<T> {
 		return webSocket({
-			url,
+			url : window.location.protocol === 'http:'
+				? 'ws://' + url
+				: 'wss://' + url,
 			deserializer : (event : MessageEvent<string>) : T => {
 				let data : T;
 

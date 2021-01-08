@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 
 import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { WebSocketSubject } from 'rxjs/webSocket';
 
 import { WebsocketService } from 'src/app/services';
@@ -18,21 +17,25 @@ export class AppComponent {
 	constructor (private wsSvc : WebsocketService) {
 	}
 
-	sendMessage (repeat : number = 1) : void {
-		console.log('sendMessage()');
+	echo (repeat : number = 1) : void {
+		console.group('echo');
 
-		const ws$ : WebSocketSubject<Message> = this.wsSvc.open<Message>('ws://localhost:3001');
+		const ws$ : WebSocketSubject<Message> = this.wsSvc.open<Message>('localhost:3001');
 
-		const sub : Subscription = ws$.pipe(
-			tap((msg) => {
+		const sub : Subscription = ws$.subscribe({
+			next (msg) : void {
 				console.log('tap()', msg);
-			})
-		)
-		.subscribe();
+			},
+			complete () : void {
+				console.log('complete()');
+				console.groupEnd();
+			}
+		});
 
 
 		for (let i = 0; i < repeat; i++) {
 			ws$.next({
+				mode : 'echo',
 				message : new Date().toISOString()
 			});
 		}
@@ -43,6 +46,31 @@ export class AppComponent {
 
 			ws$.complete();
 		}, 50);
+	}
+
+	endByFlag () : void {
+		console.group('endByFlag()');
+
+		const ws$ : WebSocketSubject<Message> = this.wsSvc.open<Message>('localhost:3001');
+
+		const sub : Subscription = ws$.subscribe({
+			next (msg) : void {
+				console.log('next()', msg);
+
+				if (msg.end) {
+					ws$.complete();
+				}
+			},
+			complete () : void {
+				console.log('complete()');
+				console.groupEnd();
+			}
+		});
+
+		ws$.next({
+			mode : 'receive',
+			message : new Date().toISOString()
+		});
 	}
 
 }
